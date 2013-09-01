@@ -1,0 +1,86 @@
+# Maintainer: Julien Sopena (jsopena.archlinux@free.fr)
+# Contributor: Oleg Smirnov (oleg.smirnov@gmail.com)
+# Contributor: angrycore (angrycore@gmail.com)
+# Contributor: Christophe Guéret (christophe.gueret@gmail.com)
+pkgname="omnetpp"
+pkgver=4.3
+pkgrel=2
+pkgdesc="Component-based simulation package designed for modeling communication networks"
+url="http://www.omnetpp.org"
+license="Academic Public License"
+depends=(tcl tk blt)
+makedepends=(libxml2 bison flex)
+arch=('i686' 'x86_64')
+optdepends=('openmpi: message passing library for parallel simulation',
+  'openjdk6: Java runtime for using OMNeT++/OMNEST IDE')
+install=${pkgname}.install
+_pkgname="omnetpp"
+source=(http://omnetpp.org/omnetpp/doc_download/2247-omnet-43-source--ide-tgz 'OMNeT ++.desktop')
+md5sums=('2468c5b28ae25e92d2afca5efb3fa518'
+         '4e51f984f1a7114ab1f0b6f88fa4e0bc')
+
+build() {
+        cd ${srcdir}/${_pkgname}-${pkgver}
+        PATH=${srcdir}/${_pkgname}-${pkgver}/bin:$PATH
+        LD_LIBRARY_PATH=${srcdir}/${_pkgname}-${pkgver}/lib:$LD_LIBRARY_PATH
+
+        sed -i 's!OMNETPP_ROOT/images!OMNETPP_ROOT/images;/usr/share/omnetpp/images!' configure*
+
+        ./configure --prefix=/usr
+
+        sed -i 's!IDEDIR=.*!IDEDIR=/opt/omnetpp/ide!' src/utils/omnetpp src/utils/omnest
+        sed -i 's!osgi.instance.area.default=.*$!#osgi.instance.area.default=/usr/share/omnetpp/samples!g' ide/configuration/config.ini
+
+        make || return 1
+}
+
+package() {
+        mkdir -p ${pkgdir}/usr/bin
+
+        cd ${srcdir}/${_pkgname}-${pkgver}
+
+        install -m755 bin/* ${pkgdir}/usr/bin
+
+        sed "s|${srcdir}/${_pkgname}-${pkgver}|/usr|g" -i ${pkgdir}/usr/bin/opp_makemake
+        sed "s|OMNETPP_INCL_DIR=/usr/include|OMNETPP_INCL_DIR=/usr/include/omnetpp|" -i ${pkgdir}/usr/bin/opp_makemake
+
+        mkdir -p ${pkgdir}/usr/lib
+        install lib/gcc/* ${pkgdir}/usr/lib
+
+        mkdir -p ${pkgdir}/usr/include/omnetpp
+        mkdir -p ${pkgdir}/usr/include/omnetpp/platdep
+        install -m644 include/*.h ${pkgdir}/usr/include/omnetpp
+        install -m644 include/platdep/*.h ${pkgdir}/usr/include/omnetpp/platdep
+
+        install -d ${pkgdir}/usr/share/omnetpp/{images,doc,samples}
+        cp -R images/* ${pkgdir}/usr/share/omnetpp/images
+        cp -R doc/* ${pkgdir}/usr/share/omnetpp/doc
+        cp -R samples/* ${pkgdir}/usr/share/omnetpp/samples
+
+        install -d ${pkgdir}/usr/share/emacs/site-lisp
+        install -m644 contrib/emacs/ned-mode.el ${pkgdir}/usr/share/emacs/site-lisp
+        install -m644 contrib/emacs/ini-mode.el ${pkgdir}/usr/share/emacs/site-lisp
+
+        install -d ${pkgdir}/opt/omnetpp
+        cp -R ide ${pkgdir}/opt/omnetpp
+        touch ${pkgdir}/opt/omnetpp/ide/error.log
+        chmod a+rw ${pkgdir}/opt/omnetpp/ide/error.log
+
+        mkdir -p ${pkgdir}/usr/share/icons/
+        cp ${srcdir}/omnetpp-${pkgver}/ide/icon.png ${pkgdir}/usr/share/icons/omnetpp.png
+
+        #fix up Makefile.inc
+        sed -i 's!OMNETPP_ROOT=.*!OMNETPP_ROOT="/usr"!' Makefile.inc
+        sed -i 's!OMNETPP_SAMPLES_DIR=.*!OMNETPP_SAMPLES_DIR="/usr/share/omnetpp/samples"!' Makefile.inc
+        sed -i 's!OMNETPP_BIN_DIR=.*!OMNETPP_BIN_DIR="/usr/bin"!' Makefile.inc
+        sed -i 's!OMNETPP_INCL_DIR=.*!OMNETPP_INCL_DIR="/usr/include/omnetpp"!' Makefile.inc
+        sed -i 's!OMNETPP_LIB_DIR=.*!OMNETPP_LIB_DIR="/usr/lib"!' Makefile.inc
+        #several other directories don't get installed, it would be weird too
+        cp Makefile.inc ${pkgdir}/usr/share/omnetpp
+        echo '#!/bin/sh
+echo /usr/share/omnetpp/Makefile.inc' > ${pkgdir}/usr/bin/opp_configfilepath
+
+        mkdir -p ${pkgdir}/usr/share/applications/
+        cd ${srcdir}
+        cp 'OMNeT ++.desktop' ${pkgdir}/usr/share/applications/
+}
