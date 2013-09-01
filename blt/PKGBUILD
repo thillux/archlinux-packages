@@ -4,7 +4,7 @@
 # Contributor: Christophe Gueret <tolgam@homegnu.net>
 # Contributor: b00rt00s <b_ged@linuksowo.pl>
 pkgname=blt
-pkgver=blt 2.4z
+pkgver=2.4z
 pkgrel=11
 pkgdesc="Adds new commands and widgets to the Tcl interpreter."
 url="http://blt.sourceforge.net"
