@@ -25,7 +25,7 @@ build() {
   ./configure --prefix=/usr --with-tcl=/usr/lib --with-x --x-includes=/usr/include --x-libraries=/usr/lib --mandir=/usr/share/man
 
   # Compile
-  make
+  make -j 1 || return 1
 }
 
 package() {
@@ -37,7 +37,7 @@ package() {
   cp ${srcdir}/COPYING ${pkgdir}/usr/share/licenses/blt
 
   cd ${srcdir}/${pkgname}
-  make INSTALL_ROOT=${pkgdir} install
+  make -j 1 INSTALL_ROOT=${pkgdir} install
 
   # Delete man file, it is still owned by extra/tk
   rm ${pkgdir}/usr/share/man/mann/bitmap.n
