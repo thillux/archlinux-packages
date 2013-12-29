@@ -1,0 +1,46 @@
+# Contributor: thillux <theil dot markus at gmail dot com>
+
+pkgname=(wpgenerator-git)
+pkgver=0.1
+pkgrel=1
+pkgdesc="A simple wallpaper generator"
+arch=('i686' 'x86_64')
+url="http://advancemame.sourceforge.net"
+depends=('librsvg' 'cairo')
+makedepends=('git')
+license=('GPL')
+source=()
+provides=('wpgenerator')
+
+_gitroot="git://github.com/thillux/WPGenerator.git"
+_gitname="master"
+
+build() {
+      cd "$srcdir"
+      msg "Connecting to GIT server...."
+
+      if [[ -d "$_gitname" ]]; then
+        cd "$_gitname" && git pull origin
+        msg "The local files are updated."
+      else
+        git clone "$_gitroot" "$_gitname"
+      fi
+
+      msg "GIT checkout done or server timeout"
+      msg "Starting build..."
+
+      rm -rf "$srcdir/$_gitname-build"
+      git clone "$srcdir/$_gitname" "$srcdir/$_gitname-build"
+      cd "$srcdir/$_gitname-build"
+
+      cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX:PATH=/usr . || return 1
+      make || return 1
+}
+
+package() {
+        cd "$srcdir/$_gitname-build"
+        # Binary
+        install -D -m755 WPGenerator $pkgdir/usr/bin/WPGenerator
+        # Documentation
+        install -D -m644 res/archlinux-logo-light-scalable.svg $pkgdir/usr/share/WPGenerator/archlinux-logo-light-scalable.svg
+}
