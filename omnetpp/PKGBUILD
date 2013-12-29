@@ -3,8 +3,8 @@
 # Contributor: angrycore (angrycore@gmail.com)
 # Contributor: Christophe Guéret (christophe.gueret@gmail.com)
 pkgname="omnetpp"
-pkgver=4.3
-pkgrel=2
+pkgver=4.3.1
+pkgrel=1
 pkgdesc="Component-based simulation package designed for modeling communication networks"
 url="http://www.omnetpp.org"
 license="Academic Public License"
@@ -15,21 +15,29 @@ optdepends=('openmpi: message passing library for parallel simulation',
   'openjdk6: Java runtime for using OMNeT++/OMNEST IDE')
 install=${pkgname}.install
 _pkgname="omnetpp"
-source=(http://omnetpp.org/omnetpp/doc_download/2247-omnet-43-source--ide-tgz 'OMNeT ++.desktop')
-md5sums=('2468c5b28ae25e92d2afca5efb3fa518'
-         '4e51f984f1a7114ab1f0b6f88fa4e0bc')
+source=(http://omnetpp.org/download/release/omnetpp-${pkgver}-src.tgz 'OMNeT ++.desktop' 'add-stateptr.patch' 'osgi_dir.patch')
+md5sums=('2fd44517570048c95ee47c896838312d'
+         '4e51f984f1a7114ab1f0b6f88fa4e0bc'
+         '4047a61bee4dd0ffd9937a758855af23'
+         'd1184660668b5b1f74bd91eb404c9021')
 
 build() {
         cd ${srcdir}/${_pkgname}-${pkgver}
         PATH=${srcdir}/${_pkgname}-${pkgver}/bin:$PATH
         LD_LIBRARY_PATH=${srcdir}/${_pkgname}-${pkgver}/lib:$LD_LIBRARY_PATH
 
+        # apply all our patches in the order the appear
+        echo "patching..."
+        for FILE in `ls ${srcdir}/*.patch`; do
+            echo "=== applying patch file ${FILE##*/} ==="
+            patch -p1 < "${FILE}"
+        done
+
         sed -i 's!OMNETPP_ROOT/images!OMNETPP_ROOT/images;/usr/share/omnetpp/images!' configure*
 
         ./configure --prefix=/usr
 
         sed -i 's!IDEDIR=.*!IDEDIR=/opt/omnetpp/ide!' src/utils/omnetpp src/utils/omnest
-        sed -i 's!osgi.instance.area.default=.*$!#osgi.instance.area.default=/usr/share/omnetpp/samples!g' ide/configuration/config.ini
 
         make || return 1
 }

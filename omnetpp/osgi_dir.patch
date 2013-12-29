@@ -1,0 +1,37 @@
+diff --git a/configure.in b/configure.in
+index dc2a0a5..0ae4a1b 100644
+--- a/configure.in
++++ b/configure.in
+@@ -1254,12 +1254,12 @@ if test -d ide ; then
+         ;;
+     linux.x86_64)
+         cp -r ide/linux64/* ide
+-        echo osgi.instance.area.default=../samples >>ide/configuration/config.ini
++        echo osgi.instance.area.default=/usr/share/omnetpp/samples >>ide/configuration/config.ini
+         rm -rf ide/win32 ide/linux ide/linux64 ide/macosx
+         ;;
+     linux.x86)
+         cp -r ide/linux/* ide
+-        echo osgi.instance.area.default=../samples >>ide/configuration/config.ini
++        echo osgi.instance.area.default=/usr/share/omnetpp/samples >>ide/configuration/config.ini
+         rm -rf ide/win32 ide/linux ide/linux64 ide/macosx
+         ;;
+     macosx)
+@@ -1302,14 +1302,14 @@ WARNING: The configuration script could not detect the following packages:
+   $OPP_PROBLEM_PACKAGES
+ 
+ Scroll up to see the warning messages (use shift+PgUp), and search config.log
+-for more details. While you can use $OMNETPP_PRODUCT in the current configuration, 
++for more details. While you can use $OMNETPP_PRODUCT in the current configuration,
+ be aware that some functionality may be unavailable or incomplete.
+ 
+ EOT
+   if module avail >/dev/null 2>/dev/null; then
+     cat 1>&2 << EOT
+-NOTE: Some packages like MPI may need to be loaded explicitly using a 
+-"module load <MODULENAME>" command  prior to running ./configure. 
++NOTE: Some packages like MPI may need to be loaded explicitly using a
++"module load <MODULENAME>" command  prior to running ./configure.
+ Enter "module avail" to see the list of available modules on your system.
+ 
+ EOT

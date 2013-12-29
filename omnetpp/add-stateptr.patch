@@ -1,0 +1,60 @@
+From aabc06b992faea0bcf3540c51703dc4bd10161bf Mon Sep 17 00:00:00 2001
+From: David Costa <david@zarel.net>
+Date: Sun, 13 Oct 2013 01:18:51 +0200
+Subject: [PATCH 1/2] Add statePtr as a parser parameter
+
+---
+ src/common/matchexpression.y | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/src/common/matchexpression.y b/src/common/matchexpression.y
+index 060700e..3fa9ae9 100644
+--- a/src/common/matchexpression.y
++++ b/src/common/matchexpression.y
+@@ -18,7 +18,8 @@
+ %token STRINGLITERAL
+ %token OR_ AND_ NOT_   /* note: cannot use %left/%right because of implicit "or" operator */
+ 
+-%pure_parser
++%pure-parser
++%param {void *statePtr}
+ 
+ %start expression
+ 
+-- 
+1.8.4
+
+From d7635d6deb7faa386d4f6bfdc140b3952d26bdec Mon Sep 17 00:00:00 2001
+From: David Costa <david@zarel.net>
+Date: Sun, 13 Oct 2013 01:23:52 +0200
+Subject: [PATCH 2/2] yyerror has a different signature when parser is pure
+
+---
+ src/common/matchexpression.y | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/common/matchexpression.y b/src/common/matchexpression.y
+index 3fa9ae9..03a30a7 100644
+--- a/src/common/matchexpression.y
++++ b/src/common/matchexpression.y
+@@ -36,7 +36,7 @@
+ #include <string.h>         /* YYVERBOSE needs it */
+ #endif
+ 
+-void yyerror (const char *s);
++void yyerror (void *statePtr, const char *s);
+ 
+ #include "matchexpression.h"
+ #include "matchexpressionlexer.h"
+@@ -143,7 +143,7 @@ void MatchExpression::parsePattern(std::vector<MatchExpression::Elem>& elems, co
+     yyparse(&state);
+ }
+ 
+-void yyerror(const char *s)
++void yyerror(void *statePtr, const char *s)
+ {
+     // chop newline
+     char buf[250];
+-- 
+1.8.4
+
