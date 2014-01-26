@@ -3,7 +3,7 @@
 # Contributor: angrycore (angrycore@gmail.com)
 # Contributor: Christophe Guéret (christophe.gueret@gmail.com)
 pkgname="omnetpp"
-pkgver=4.3.1
+pkgver=4.4
 pkgrel=1
 pkgdesc="Component-based simulation package designed for modeling communication networks"
 url="http://www.omnetpp.org"
@@ -15,10 +15,9 @@ optdepends=('openmpi: message passing library for parallel simulation',
   'openjdk6: Java runtime for using OMNeT++/OMNEST IDE')
 install=${pkgname}.install
 _pkgname="omnetpp"
-source=(http://omnetpp.org/download/release/omnetpp-${pkgver}-src.tgz 'OMNeT ++.desktop' 'add-stateptr.patch' 'osgi_dir.patch')
+source=(http://omnetpp.org/download/release/omnetpp-${pkgver}-src.tgz 'OMNeT ++.desktop' 'osgi_dir.patch')
 md5sums=('2fd44517570048c95ee47c896838312d'
          '4e51f984f1a7114ab1f0b6f88fa4e0bc'
-         '4047a61bee4dd0ffd9937a758855af23'
          'd1184660668b5b1f74bd91eb404c9021')
 
 build() {
